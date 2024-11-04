@@ -13,11 +13,13 @@ class dateService {
   calculateDay(year, month, date) {
     const checkDate = this.checkDateCorrect(year, month, date);
     if (checkDate.isCorrect) {
-      const day = this.simpleGetDay(year, month, date);
+      const dayFromSimple = this.simpleGetDay(year, month, date);
+      const day = this.getDay(year, month, date);
       return {
         status: "success",
         data: {
           day,
+          dayFromSimple,
           selectedDate: { year, month, date },
         },
       };
@@ -32,6 +34,12 @@ class dateService {
   simpleGetDay(year, month, date) {
     const dateValue = new Date(year, month - 1, date);
     return dateValue.toLocaleString("en-US", { weekday: "long" });
+  }
+
+  getDay(year, month, date) {
+    const totalDays = this.getTotalDays(year, month, date);
+    const weekdayIndex = totalDays % 7;
+    return this.WEEKDAYS[weekdayIndex];
   }
 
   checkDateCorrect(year, month, date) {
@@ -57,7 +65,7 @@ class dateService {
       };
     }
 
-    if (date < 1 || date > this.getDateInMonth(month, year)) {
+    if (date < 1 || date > this.getDaysInMonth(month, year)) {
       return {
         isCorrect: false,
         error: {
@@ -71,7 +79,22 @@ class dateService {
     };
   }
 
-  getDateInMonth(month, year) {
+  getTotalDays(year, month, date) {
+    let totalDays = 0;
+
+    for (let y = 1; y < year; y++) {
+      totalDays += this.isLeapYear(y) ? 366 : 365;
+    }
+    for (let m = 1; m < month; m++) {
+      totalDays += this.getDaysInMonth(m, year);
+    }
+
+    totalDays += date - 1;
+
+    return totalDays;
+  }
+
+  getDaysInMonth(month, year) {
     if (month === 2 && this.isLeapYear(year)) {
       return 29;
     }
