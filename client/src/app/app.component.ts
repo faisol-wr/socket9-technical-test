@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
 import { DateService } from './services/date.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -16,13 +17,35 @@ export class AppComponent {
     month: new FormControl(''),
     date: new FormControl(''),
   });
+  isLoading: boolean = false;
+  isError: boolean = false;
+
+  message: string = '';
 
   private dateService = inject(DateService);
 
   onSubmit() {
-    console.log(this.dateForm.value);
-    this.dateService.productList().subscribe((result) => {
-      console.log('RS: ', result);
-    });
+    const value = this.dateForm.value;
+    this.message = '';
+    this.isLoading = true;
+    this.dateService
+      .calculateDay(Number(value.year), Number(value.month), Number(value.date))
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
+      .subscribe({
+        next: (result) => {
+          console.log('Result: ', result);
+          this.isError = false;
+          this.message = result.day;
+        },
+        error: (err) => {
+          console.log('Error: ', err.error);
+          this.isError = true;
+          this.message = err.error.message;
+        },
+      });
   }
 }
