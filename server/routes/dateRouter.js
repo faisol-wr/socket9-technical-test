@@ -7,8 +7,8 @@ const prefixApi = "date";
 
 const dateService = new DateService();
 
-router.get(`/${prefixApi}/calculateDay`, (req, res) => {
-  const { year, month, date } = req.query;
+router.post(`/${prefixApi}/calculateDay`, express.json(), (req, res) => {
+  const { year, month, date } = req.body;
   const result = dateService.calculateDay(year, month, date);
   switch (result.status) {
     case "success": {

@@ -31,8 +31,6 @@ class dateService {
 
   simpleGetDay(year, month, date) {
     const dateValue = new Date(year, month - 1, date);
-    console.log(year, month, date);
-    console.log(dateValue);
     return dateValue.toLocaleString("en-US", { weekday: "long" });
   }
 
@@ -41,11 +39,11 @@ class dateService {
     month = Number(month);
     date = Number(date);
 
-    if (year < 0) {
+    if (year < 1) {
       return {
         isCorrect: false,
         error: {
-          message: "month is incorrect",
+          message: "year is incorrect",
         },
       };
     }
