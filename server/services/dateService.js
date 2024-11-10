@@ -9,6 +9,7 @@ class dateService {
     "Sunday",
   ];
   DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  initYear = 1900;
 
   calculateDay(year, month, date) {
     const checkDate = this.checkDateCorrect(year, month, date);
@@ -38,7 +39,7 @@ class dateService {
 
   getDay(year, month, date) {
     const totalDays = this.getTotalDays(year, month, date);
-    const weekdayIndex = totalDays % 7;
+    const weekdayIndex = totalDays % this.WEEKDAYS.length;
     return this.WEEKDAYS[weekdayIndex];
   }
 
@@ -47,11 +48,11 @@ class dateService {
     month = Number(month);
     date = Number(date);
 
-    if (year < 1) {
+    if (year < this.initYear) {
       return {
         isCorrect: false,
         error: {
-          message: "year is incorrect",
+          message: `year is incorrect or year less than ${this.initYear}`,
         },
       };
     }
@@ -82,9 +83,15 @@ class dateService {
   getTotalDays(year, month, date) {
     let totalDays = 0;
 
-    for (let y = 1; y < year; y++) {
-      totalDays += this.isLeapYear(y) ? 366 : 365;
-    }
+    const yearsPassed = year - this.initYear;
+
+    const leapYears =
+      Math.floor(yearsPassed / 4) -
+      Math.floor(yearsPassed / 100) +
+      Math.floor(yearsPassed / 400);
+
+    totalDays = yearsPassed * 365 + leapYears;
+
     for (let m = 1; m < month; m++) {
       totalDays += this.getDaysInMonth(m, year);
     }
